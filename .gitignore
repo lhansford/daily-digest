@@ -1,0 +1,13 @@
+mise.toml
+
+# TypeScript build outputs
+dist/
+*.tsbuildinfo
+
+# Node modules
+node_modules/
+
+.env
+
+output
+.vscode/
