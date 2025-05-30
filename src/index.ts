@@ -10,20 +10,21 @@ dotenv.config();
 async function main() {
   // Get the API tokens from environment variables
   const token = process.env.RAINDROP_TOKEN;
-  const dropboxToken = process.env.DROPBOX_TOKEN;
+  const dropboxClientId = process.env.DROPBOX_CLIENT_ID;
+  const dropboxClientSecret = process.env.DROPBOX_CLIENT_SECRET;
 
   if (!token) {
     console.error("Error: RAINDROP_TOKEN environment variable is required");
     process.exit(1);
   }
 
-  if (!dropboxToken) {
-    console.error("Error: DROPBOX_TOKEN environment variable is required");
+  if (!dropboxClientId || !dropboxClientSecret) {
+    console.error("Error: DROPBOX_CLIENT_ID and DROPBOX_CLIENT_SECRET environment variable is required");
     process.exit(1);
   }
 
   const client = new RaindropClient({ token });
-  const dropboxClient = new DropboxClient({ accessToken: dropboxToken });
+  const dropboxClient = new DropboxClient({ clientId: dropboxClientId, clientSecret: dropboxClientSecret });
 
   let urls = [];
 
