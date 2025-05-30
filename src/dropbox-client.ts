@@ -1,8 +1,9 @@
-import { Dropbox } from 'dropbox';
-import { readFile } from 'fs/promises';
+import { Dropbox } from "dropbox";
+import { readFile } from "fs/promises";
 
 export interface DropboxConfig {
-  accessToken: string;
+  clientId: string;
+  clientSecret: string;
 }
 
 export class DropboxClient {
@@ -10,25 +11,25 @@ export class DropboxClient {
 
   constructor(config: DropboxConfig) {
     this.dropbox = new Dropbox({
-      accessToken: config.accessToken,
-      fetch: fetch
+      fetch: fetch,
+      ...config,
     });
   }
 
   async uploadFile(localPath: string, dropboxPath: string): Promise<void> {
     try {
       const fileBuffer = await readFile(localPath);
-      
+
       await this.dropbox.filesUpload({
         path: dropboxPath,
         contents: fileBuffer,
-        mode: { '.tag': 'overwrite' },
-        autorename: true
+        mode: { ".tag": "overwrite" },
+        autorename: true,
       });
 
       console.log(`✅ Successfully uploaded to Dropbox: ${dropboxPath}`);
     } catch (error) {
-      console.error('Error uploading to Dropbox:', error);
+      console.error("Error uploading to Dropbox:", error);
       throw error;
     }
   }
@@ -37,11 +38,11 @@ export class DropboxClient {
     try {
       await this.dropbox.filesCreateFolderV2({
         path: path,
-        autorename: false
+        autorename: false,
       });
     } catch (error: any) {
       // Ignore error if folder already exists
-      if (error.error?.error_summary?.includes('path/conflict/folder')) {
+      if (error.error?.error_summary?.includes("path/conflict/folder")) {
         return;
       }
       throw error;
@@ -49,8 +50,9 @@ export class DropboxClient {
   }
 
   async uploadEpub(localEpubPath: string, filename?: string): Promise<string> {
-    const dropboxFolder = '/Apps/Rakuten Kobo';
-    const dropboxFilename = filename || `daily-digest-${new Date().toISOString().split('T')[0]}.epub`;
+    const dropboxFolder = "/Apps/Rakuten Kobo";
+    const dropboxFilename =
+      filename || `daily-digest-${new Date().toISOString().split("T")[0]}.epub`;
     const dropboxPath = `${dropboxFolder}/${dropboxFilename}`;
 
     // Ensure the folder exists
