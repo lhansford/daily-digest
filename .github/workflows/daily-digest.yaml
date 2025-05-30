@@ -29,5 +29,6 @@ jobs:
         run: npm start
         env:
           RAINDROP_TOKEN: ${{ secrets.RAINDROP_TOKEN }}
-          DROPBOX_TOKEN: ${{ secrets.DROPBOX_TOKEN }}
+          DROPBOX_CLIENT_ID: ${{ secrets.DROPBOX_CLIENT_ID }}
+          DROPBOX_CLIENT_SECRET: ${{ secrets.DROPBOX_CLIENT_SECRET }}
           NODE_ENV: production
