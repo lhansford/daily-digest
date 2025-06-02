@@ -55,7 +55,7 @@ async function main() {
   });
 
   const timestamp = new Date().toISOString().split("T")[0];
-  const epubFilename = `output/daily-digest-${timestamp}.epub`;
+  const epubFilename = `output/daily-digest-${timestamp}.kepub.epub`;
 
   try {
     // Generate EPUB

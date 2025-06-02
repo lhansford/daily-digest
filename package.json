@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && cp ./src/index.css ./dist/index.css",
+    "build": "tsc",
     "start": "npm run build && node dist/index.js",
     "dev": "node dist/index.js",
     "refresh-tokens": "npx ts-node scripts/get-dropbox-refresh-token.ts"
