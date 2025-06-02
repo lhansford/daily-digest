@@ -68,6 +68,7 @@ async function main() {
       headless: true,
       sandbox: false,
       title: `Daily Digest ${timestamp}`,
+      css: "html { font-size: 12px }",
     });
 
     console.log(`✅ EPUB saved: ${epubFilename}`);
