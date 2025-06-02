@@ -4,6 +4,7 @@ import { readFile } from "fs/promises";
 export interface DropboxConfig {
   clientId: string;
   clientSecret: string;
+  refreshToken: string;
 }
 
 export class DropboxClient {

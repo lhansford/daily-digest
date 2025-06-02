@@ -10,7 +10,7 @@
     "build": "tsc",
     "start": "npm run build && node dist/index.js",
     "dev": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "refresh-tokens": "npx ts-node scripts/get-dropbox-refresh-token.ts"
   },
   "devDependencies": {
     "@types/node": "^22.15.21",

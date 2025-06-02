@@ -12,19 +12,26 @@ async function main() {
   const token = process.env.RAINDROP_TOKEN;
   const dropboxClientId = process.env.DROPBOX_CLIENT_ID;
   const dropboxClientSecret = process.env.DROPBOX_CLIENT_SECRET;
+  const dropboxRefreshToken = process.env.DROPBOX_REFRESH_TOKEN;
 
   if (!token) {
     console.error("Error: RAINDROP_TOKEN environment variable is required");
     process.exit(1);
   }
 
-  if (!dropboxClientId || !dropboxClientSecret) {
-    console.error("Error: DROPBOX_CLIENT_ID and DROPBOX_CLIENT_SECRET environment variable is required");
+  if (!dropboxClientId || !dropboxClientSecret || !dropboxRefreshToken) {
+    console.error(
+      "Error: DROPBOX_CLIENT_ID, DROPBOX_CLIENT_SECRET, and DROPBOX_REFRESH_TOKEN environment variables are required"
+    );
     process.exit(1);
   }
 
   const client = new RaindropClient({ token });
-  const dropboxClient = new DropboxClient({ clientId: dropboxClientId, clientSecret: dropboxClientSecret });
+  const dropboxClient = new DropboxClient({
+    clientId: dropboxClientId,
+    clientSecret: dropboxClientSecret,
+    refreshToken: dropboxRefreshToken,
+  });
 
   let urls = [];
 
@@ -80,7 +87,7 @@ async function main() {
     console.error("\n❌ Failed to upload EPUB to Dropbox:", dropboxError);
     console.log(`\n📖 EPUB was still created successfully: ${epubFilename}`);
     console.log(
-      "You can manually upload the file or check your Dropbox configuration.",
+      "You can manually upload the file or check your Dropbox configuration."
     );
     process.exit(1);
   }
@@ -90,12 +97,12 @@ async function main() {
     const movedBookmarks = await client.moveBookmarksToCollection(
       "For Daily Digest",
       "In Daily Digest",
-      urls.length,
+      urls.length
     );
 
     if (movedBookmarks.length > 0) {
       console.log(
-        `\n✅ Successfully moved ${movedBookmarks.length} bookmark(s) to "In Daily Digest" collection.`,
+        `\n✅ Successfully moved ${movedBookmarks.length} bookmark(s) to "In Daily Digest" collection.`
       );
     }
   } catch (moveError) {
