@@ -53,7 +53,7 @@ export class DropboxClient {
   async uploadEpub(localEpubPath: string, filename?: string): Promise<string> {
     const dropboxFolder = "/Apps/Rakuten Kobo";
     const dropboxFilename =
-      filename || `daily-digest-${new Date().toISOString().split("T")[0]}.epub`;
+      filename || `daily-digest-${new Date().toISOString().split("T")[0]}.kepub.epub`;
     const dropboxPath = `${dropboxFolder}/${dropboxFilename}`;
 
     // Ensure the folder exists

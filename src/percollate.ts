@@ -33,7 +33,7 @@ declare module "percollate" {
   export function epub(
     urls: string[],
     options?: PercollateOptions,
-  ): Promise<Buffer>;
+  ): Promise<{ items: { url: string }[] }>;
   export function html(
     urls: string[],
     options?: PercollateOptions,

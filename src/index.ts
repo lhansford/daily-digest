@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 import { DropboxClient } from "./dropbox-client.js";
 import { RaindropClient } from "./raindrop-client.js";
+import { Raindrop } from "./types.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -33,47 +34,69 @@ async function main() {
     refreshToken: dropboxRefreshToken,
   });
 
-  let urls = [];
+  let raindrops = [];
 
   try {
     // Get 5 URLs from the "For Daily Digest" collection
     console.log('Fetching bookmarks from "For Daily Digest" collection...');
-    urls = await client.getBookmarkUrls("For Daily Digest", 5);
+    raindrops = await client.getBookmarkUrls("For Daily Digest", 5);
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
     process.exit(1);
   }
 
-  if (urls.length === 0) {
+  if (raindrops.length === 0) {
     console.log('No bookmarks found in the "For Daily Digest" collection.');
     return;
   }
 
-  console.log(`\nFound ${urls.length} bookmark(s):\n`);
-  urls.forEach((url, index) => {
-    console.log(`${index + 1}. ${url}`);
+  console.log(`\nFound ${raindrops.length} bookmark(s):\n`);
+  raindrops.forEach((raindrop, index) => {
+    console.log(`${index + 1}. ${raindrop.link}`);
   });
 
   const timestamp = new Date().toISOString().split("T")[0];
   const epubFilename = `output/daily-digest-${timestamp}.kepub.epub`;
 
+  let successfulUrls: Raindrop[] = [];
+
   try {
     // Generate EPUB
     console.log("\nGenerating EPUB...");
-    await epub(urls, {
-      output: epubFilename,
-      "no-amp": true,
-      "bundle-images": true,
-      timeout: 60000,
-      headless: true,
-      sandbox: false,
-      title: `Daily Digest ${timestamp}`,
-      style: "index.css",
-    });
+    const result = await epub(
+      raindrops.map((r) => r.link),
+      {
+        output: epubFilename,
+        "no-amp": true,
+        "bundle-images": true,
+        timeout: 60000,
+        headless: true,
+        sandbox: false,
+        title: `Daily Digest ${timestamp}`,
+        style: "index.css",
+      }
+    );
+
+    for (const item of result.items) {
+      const raindrop = raindrops.find((r) => r.link === item.url);
+      if (!raindrop) {
+        console.error("Error: URL not found in original bookmarks:", item.url);
+        process.exit(1);
+      }
+      successfulUrls.push(raindrop);
+    }
 
     console.log(`✅ EPUB saved: ${epubFilename}`);
+    successfulUrls.forEach((item, index) => {
+      console.log(`${index + 1}. ${item.link}`);
+    });
   } catch (percollateError) {
     console.error("Error generating files with percollate:", percollateError);
+    process.exit(1);
+  }
+
+  if (successfulUrls.length === 0) {
+    console.error("All URLs failed during EPUB generation.");
     process.exit(1);
   }
 
@@ -96,9 +119,8 @@ async function main() {
   try {
     console.log('\nMoving bookmarks to "In Daily Digest" collection...');
     const movedBookmarks = await client.moveBookmarksToCollection(
-      "For Daily Digest",
       "In Daily Digest",
-      urls.length
+      successfulUrls
     );
 
     if (movedBookmarks.length > 0) {

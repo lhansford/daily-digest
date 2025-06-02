@@ -1,14 +1,20 @@
 :root {
 	--main-font: 'Bitter', serif;
-	--alt-font: ubuntu, noto, sans-serif;
-	--code-font: monospace;
+	--alt-font: 'helvetica neue', ubuntu, roboto, noto, 'segoe ui', arial,
+		sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+	--code-font: Menlo, Consolas, monospace;
 	--accent-color: black;
+}
+
+@page {
+	size: A5 portrait;
+	margin: 1cm 1cm 2cm;
 }
 
 html {
 	font-family: var(--main-font);
+	-webkit-print-color-adjust: exact;
 	tab-size: 2;
-	margin: 4rem;
 }
 
 h1,
@@ -103,7 +109,7 @@ pre code {
  */
 
 article {
-	/* font-size: 1em; */
+	font-size: 1em;
 	hyphens: auto;
 }
 
