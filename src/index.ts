@@ -1,9 +1,13 @@
 import { epub } from "percollate";
 import dotenv from "dotenv";
+import { execFile } from "child_process";
+import { promisify } from "util";
 
 import { DropboxClient } from "./dropbox-client.js";
 import { RaindropClient } from "./raindrop-client.js";
 import { Raindrop } from "./types.js";
+
+const execFileAsync = promisify(execFile);
 
 // Load environment variables from .env file
 dotenv.config();
@@ -56,7 +60,8 @@ async function main() {
   });
 
   const timestamp = new Date().toISOString().split("T")[0];
-  const epubFilename = `output/daily-digest-${timestamp}.kepub.epub`;
+  const epubFilename = `output/daily-digest-${timestamp}.epub`;
+  const kepubFilename = `output/daily-digest-${timestamp}.kepub.epub`;
 
   let successfulUrls: Raindrop[] = [];
 
@@ -101,15 +106,24 @@ async function main() {
   }
 
   try {
-    console.log("\nUploading EPUB to Dropbox...");
-    const dropboxPath = await dropboxClient.uploadEpub(epubFilename);
+    console.log("\nConverting EPUB to KEPUB format...");
+    await execFileAsync("kepubify", ["-i", "-o", "output", epubFilename]);
+    console.log(`✅ KEPUB conversion complete: ${kepubFilename}`);
+  } catch (kepubifyError) {
+    console.error("Error converting to KEPUB format:", kepubifyError);
+    process.exit(1);
+  }
 
-    console.log(`\n🎉 Successfully created and uploaded epub:`);
-    console.log(`   📖 Local: ${epubFilename}`);
+  try {
+    console.log("\nUploading EPUB to Dropbox...");
+    const dropboxPath = await dropboxClient.uploadEpub(kepubFilename);
+
+    console.log(`\n🎉 Successfully created and uploaded kepub:`);
+    console.log(`   📖 Local: ${kepubFilename}`);
     console.log(`   ☁️  Dropbox: ${dropboxPath}`);
   } catch (dropboxError) {
-    console.error("\n❌ Failed to upload EPUB to Dropbox:", dropboxError);
-    console.log(`\n📖 EPUB was still created successfully: ${epubFilename}`);
+    console.error("\n❌ Failed to upload KEPUB to Dropbox:", dropboxError);
+    console.log(`\n📖 KEPUB was still created successfully: ${kepubFilename}`);
     console.log(
       "You can manually upload the file or check your Dropbox configuration."
     );
